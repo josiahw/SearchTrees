@@ -1,0 +1,16 @@
+
+#local libraries
+add_library(testtree TestTree.cpp)
+add_library(euclideannode EuclideanNode.cpp)
+add_library(euclideanknnnode EuclideanKNNGraphNode.cpp)
+
+target_link_libraries(euclideannode
+                    ${ARMADILLO_LIBRARIES})
+target_link_libraries(euclideanknnnode
+                    ${ARMADILLO_LIBRARIES})
+target_link_libraries(testtree
+                    kdtree
+                    balltree
+                    euclideannode
+                    euclideanknnnode
+                    ${ARMADILLO_LIBRARIES})

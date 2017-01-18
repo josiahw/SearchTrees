@@ -1,0 +1,12 @@
+
+#local libraries
+add_library(thesistest ThesisTest.cpp)
+add_library(datareferenceeuclideannode DataReferenceEuclideanNode.cpp)
+
+target_link_libraries(datareferenceeuclideannode
+                    ${ARMADILLO_LIBRARIES})
+target_link_libraries(thesistest
+                    kdtree
+                    balltree
+                    datareferenceeuclideannode
+                    ${ARMADILLO_LIBRARIES})
