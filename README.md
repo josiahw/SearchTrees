@@ -1,6 +1,6 @@
 # SearchTrees
 
-This repository implements the nearest-neighbour search tree code and benchmarks found in my thesis, titled "". This code is released under the CC-BY-NC-SA Creative Commons License.
+This repository implements the nearest-neighbour search tree code and benchmarks found in my thesis, titled "Improved Similarity Search for Large Data in Machine Learning and Robotics". This code is released under the CC-BY-NC-SA Creative Commons License.
 
 Four search tree algorithms are implemented: KD-trees; vantage-point ball trees; HDR-trees; and cover trees. These implement K-nearest-neighbour search, epsilon-nearest-neighbour search, and reverse-epsilon-nearest-neighbour search. All trees have an option for limiting the number of leaves visited, in order to perform approximate search. In addition, spill-tree variants of each tree will be made available soon.
 
