@@ -14,20 +14,20 @@ Each tree is templated with a data object and metric (although the KD-tree will 
 
 ## Reproducing Thesis Results
 
-My thesis makes use of the BigANN datasets heavily for benchmarking, since they are large and high-dimensional. The original page can be found at http://corpus-texmex.irisa.fr
+My thesis makes use of the BigANN datasets heavily for benchmarking, since they are large and high-dimensional. The original page can be found at: http://corpus-texmex.irisa.fr
 
 To download and format the data for reproducing the search tree results in my thesis, run:
-* support/getdatasets.sh
-* python support/reformatdatasets.py
+* $ ./support/getdatasets.sh
+* $ python support/reformatdatasets.py
 
 From the directory that the formatted datasets are contained in, run:
-* bin/ThesisDataSizeTests > datasizeresults.csv
-* bin/ThesisLeafLimitTests > leaflimitresults.csv
-* bin/ThesisSpillTreeTests > spilltreeresults.csv
+* $ ./bin/ThesisDataSizeTests > datasizeresults.csv
+* $ ./bin/ThesisLeafLimitTests > leaflimitresults.csv
+* $ ./bin/ThesisSpillTreeTests > spilltreeresults.csv
 
 Finally, to generate the figures contained in the thesis, run:
-* python support/fig2_5.py
-* python support/fig2_6.py
-* python support/fig2_7.py
-* python support/fig2_8.py
-* python support/fig2_9.py
+* $ python support/fig2_5.py
+* $ python support/fig2_6.py
+* $ python support/fig2_7.py
+* $ python support/fig2_8.py
+* $ python support/fig2_9.py
