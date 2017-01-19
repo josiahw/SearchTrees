@@ -31,3 +31,16 @@ Finally, to generate the figures contained in the thesis, run:
 * $ python support/fig2_7.py
 * $ python support/fig2_8.py
 * $ python support/fig2_9.py
+
+## Citing
+
+If you use this code in your research, please cite my thesis:
+
+@phdthesis{walker2017similaritysearch,
+  title={Improved Similarity Search for Large Data in Machine Learning and Robotics},
+  author={Walker, Josiah},
+  year={2017},
+  school={School of Electrical Engineering and Computer Science},
+  publisher = {The University of Newcastle},
+  address = {Callaghan, NSW, Australia}
+}
