@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "BruteForce.h"
 #include "KDTree.h"
 #include "CoverTree.h"
 #include "BallTree.h"
@@ -28,6 +29,16 @@ int main (void) {
     std::cout << "DATASET SIZE, TREE TYPE, SIFT TIME, GIST TIME" << std::endl;
     std::pair<double, double> times;
     for (size_t i = 10000; i <= 1000000; i += 10000) {
+        std::cout << i << ", Brute Force, ";
+        times = ThesisTest<
+                        BruteForce<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
+                        >::timeKNNSIFT(100, i, 1000);
+        std::cout << std::get<1>(times) << ", ";
+        times = ThesisTest<
+                        BruteForce<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
+                        >::timeKNNGIST(100, i, 1000);
+        std::cout << std::get<1>(times) << std::endl;
+
         std::cout << i << ", KD tree, ";
         times = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>

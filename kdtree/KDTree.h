@@ -27,6 +27,7 @@ struct KDTreeNode {
 
     //stores the indices for child data objects (only if this node is a leaf)
     std::vector<size_t> childData;
+    std::vector<size_t> spillChildData;
 
     //stores the ID's for child kd-tree nodes (only if this node is not a leaf)
     size_t leftChildNode;
@@ -40,6 +41,7 @@ class KDTree {
 private:
     size_t root;
     size_t maxLeafSize;
+    double spillEps;
     std::vector<KDTreeNode> nodes;
     std::vector<OBJ>& data;
     std::vector<size_t> dataNodes;
@@ -109,24 +111,45 @@ private:
         rightBounds[splitDim] = splitVal;
 
         //separate the left and right child nodes
-        std::vector<size_t> leftChildren, rightChildren;
+        std::vector<size_t> leftChildren, rightChildren, leftSpill, rightSpill;
         leftChildren.reserve(dataIndices.size()/2+1);
         rightChildren.reserve(dataIndices.size()/2+1);
         for (size_t i = 0; i < vals.n_elem; ++i) {
             if (vals[i] <= splitVal) {
                 leftChildren.push_back(dataIndices[i]);
+                if (vals[i] + spillEps > splitVal) {
+                    rightSpill.push_back(dataIndices[i]);
+                }
             } else {
                 rightChildren.push_back(dataIndices[i]);
+                if (vals[i] - spillEps < splitVal) {
+                    leftSpill.push_back(dataIndices[i]);
+                }
             }
         }
+
+        //push back spill data from parent spill data
+        for (const auto& c : nodes[parentIndex].spillChildData) {
+            if (data[c].value()[splitDim] + spillEps > splitVal) {
+                rightSpill.push_back(c);
+            }
+            if (data[c].value()[splitDim] - spillEps < splitVal) {
+                leftSpill.push_back(c);
+            }
+        }
+
+
         nodes[parentIndex].childData.resize(0);
+        nodes[parentIndex].spillChildData.resize(0);
 
         nodes[parentIndex].leftChildNode = mkNodeRecursive(parentIndex,
                                                         leftChildren,
+                                                        leftSpill,
                                                         LowerBounds,
                                                         leftBounds);
         nodes[parentIndex].rightChildNode = mkNodeRecursive(parentIndex,
                                                         rightChildren,
+                                                        rightSpill,
                                                         rightBounds,
                                                         UpperBounds);
 
@@ -134,6 +157,7 @@ private:
 
     size_t mkNodeRecursive(const size_t& parentIndex,
                            const std::vector<size_t>& dataIndices,
+                           const std::vector<size_t>& spillIndices,
                            const arma::Col<double>& LowerBounds,
                            const arma::Col<double>& UpperBounds) {
         const arma::Col<double> boundGap = UpperBounds-LowerBounds;
@@ -152,6 +176,7 @@ private:
                                         LowerBounds,
                                         UpperBounds,
                                         dataIndices,
+                                        spillIndices,
                                         empty,
                                         empty}));
             for (size_t i = 0; i < dataIndices.size(); ++i) {
@@ -185,16 +210,33 @@ private:
         rightBounds[splitDim] = splitVal;
 
         //separate the left and right child nodes
-        std::vector<size_t> leftChildren, rightChildren;
+        std::vector<size_t> leftChildren, rightChildren, leftSpill, rightSpill;
         leftChildren.reserve(dataIndices.size()/2+1);
         rightChildren.reserve(dataIndices.size()/2+1);
         for (size_t i = 0; i < vals.n_elem; ++i) {
             if (vals[i] <= splitVal) {
                 leftChildren.push_back(dataIndices[i]);
+                if (vals[i] + spillEps > splitVal) {
+                    rightSpill.push_back(dataIndices[i]);
+                }
             } else {
                 rightChildren.push_back(dataIndices[i]);
+                if (vals[i] - spillEps < splitVal) {
+                    leftSpill.push_back(dataIndices[i]);
+                }
             }
         }
+
+        //push back spill data from parent spill data
+        for (const auto& c : spillIndices) {
+            if (data[c].value()[splitDim] + spillEps > splitVal) {
+                rightSpill.push_back(c);
+            }
+            if (data[c].value()[splitDim] - spillEps < splitVal) {
+                leftSpill.push_back(c);
+            }
+        }
+
         size_t currentIndex = nodes.size();
         //make a new node with children
         nodes.push_back(KDTreeNode({
@@ -205,12 +247,15 @@ private:
                 LowerBounds,
                 UpperBounds,
                 std::vector<size_t>(),
+                std::vector<size_t>(),
                 mkNodeRecursive(currentIndex,
                                 leftChildren,
+                                leftSpill,
                                 LowerBounds,
                                 leftBounds),
                 mkNodeRecursive(currentIndex,
                                 rightChildren,
+                                rightSpill,
                                 rightBounds,
                                 UpperBounds)
               }));
@@ -223,7 +268,7 @@ public:
     ///create a KDTree with a dataset d, and a default maximum leaf-node size of 100 children
     KDTree(std::vector<OBJ>& d,
            const double& spillEps = 0.0,
-           const size_t& mLeafSize = 100) : data(d) {
+           const size_t& mLeafSize = 100) : data(d), spillEps(spillEps) {
         maxLeafSize = mLeafSize;
         dataNodes.resize(data.size());
         nodes.reserve(data.capacity());
@@ -239,6 +284,7 @@ public:
         }
         root = mkNodeRecursive(0,
                                dataIndices,
+                               std::vector<size_t>(),
                                lowerBounds,
                                upperBounds);
     }

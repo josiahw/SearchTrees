@@ -28,7 +28,7 @@ int main (void) {
     std::cout << "LEAF LIMIT, TREE TYPE, SIFT TIME, SIFT ACCURACY, GIST TIME, GIST ACCURACY" << std::endl;
     std::pair<double, double> times;
     double accuracy = 0.;
-    for (size_t i = 100; i <= 1000000; i = (3*i/2)) {
+    for (size_t i = 10; i <= 1000000; i = (3*i/2)) {
         std::cout << i << ", KD tree, ";
         times = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>

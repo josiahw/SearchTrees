@@ -23,6 +23,7 @@ struct BallTreeNode {
 
     //stores the indices for child data objects (only if this node is a leaf)
     std::vector<size_t> childData;
+    std::vector<size_t> spillChildData;
 
     //stores the ID's for child vp-tree nodes (only if this node is not a leaf)
     size_t leftChildNode;
@@ -36,6 +37,7 @@ class BallTree {
 private:
     size_t root;
     size_t maxLeafSize;
+    double spillEps;
     std::vector<BallTreeNode> nodes;
     std::vector<OBJ>& data;
     std::vector<size_t> dataNodes;
@@ -100,29 +102,54 @@ private:
         nodes[parentIndex].splitPoint = splitPt;
 
         //separate the left and right child nodes
-        std::vector<size_t> leftChildren, rightChildren;
+        std::vector<size_t> leftChildren, rightChildren, leftSpill, rightSpill;
         leftChildren.reserve(dataIndices.size()/2+1);
         rightChildren.reserve(dataIndices.size()/2+1);
         for (size_t i = 0; i < dataIndices.size(); ++i) {
             if (dataIndices[i] != splitPt) {
                 if (vals[i] <= splitVal) {
                     leftChildren.push_back(dataIndices[i]);
+                    if (vals[i] + spillEps > splitVal) {
+                        rightSpill.push_back(dataIndices[i]);
+                    }
                 } else {
                     rightChildren.push_back(dataIndices[i]);
+                    if (vals[i] - spillEps < splitVal) {
+                        leftSpill.push_back(dataIndices[i]);
+                    }
                 }
             }
         }
+
+
+        //push back inherited spill indices for each child
+        for (const auto& c : nodes[parentIndex].spillChildData) {
+            const double d = METRIC::dist(data[c], data[splitPt]);
+
+            if (d + spillEps > splitVal) {
+                rightSpill.push_back(c);
+            }
+            if (d - spillEps < splitVal) {
+                leftSpill.push_back(c);
+            }
+        }
+
+
         nodes[parentIndex].childData.resize(0);
+        nodes[parentIndex].spillChildData.resize(0);
 
         nodes[parentIndex].leftChildNode = mkNodeRecursive(parentIndex,
-                                                        leftChildren);
+                                                        leftChildren,
+                                                        leftSpill);
         nodes[parentIndex].rightChildNode = mkNodeRecursive(parentIndex,
-                                                        rightChildren);
+                                                        rightChildren,
+                                                        rightSpill);
 
     }
 
     size_t mkNodeRecursive(const size_t& parentIndex,
-                           const std::vector<size_t>& dataIndices) {
+                           const std::vector<size_t>& dataIndices,
+                           const std::vector<size_t>& spillIndices) {
 
         //early exit to save processing if the leaf size is too small
         if (dataIndices.size() <= maxLeafSize ) {
@@ -134,6 +161,7 @@ private:
                                         0.,
                                         maxRadius,
                                         dataIndices,
+                                        spillIndices,
                                         empty,
                                         empty}));
             for (size_t i = 0; i < dataIndices.size(); ++i) {
@@ -179,6 +207,7 @@ private:
                                         0.,
                                         maxRadius,
                                         dataIndices,
+                                        spillIndices,
                                         empty,
                                         empty}));
             for (size_t i = 0; i < dataIndices.size(); ++i) {
@@ -189,7 +218,7 @@ private:
         }
 
         //separate the left and right child nodes
-        std::vector<size_t> leftChildren, rightChildren;
+        std::vector<size_t> leftChildren, rightChildren, leftSpill, rightSpill;
         leftChildren.reserve(dataIndices.size()/2+1);
         rightChildren.reserve(dataIndices.size()/2+1);
         double maxRadius = 0.;
@@ -198,11 +227,30 @@ private:
             if (dataIndices[i] != splitPt) {
                 if (vals[i] <= splitVal) {
                     leftChildren.push_back(dataIndices[i]);
+                    if (vals[i] + spillEps > splitVal) {
+                        rightSpill.push_back(dataIndices[i]);
+                    }
                 } else {
                     rightChildren.push_back(dataIndices[i]);
+                    if (vals[i] - spillEps < splitVal) {
+                        leftSpill.push_back(dataIndices[i]);
+                    }
                 }
             }
         }
+
+        //push back inherited spill indices for each child
+        for (const auto& c : spillIndices) {
+            const double d = METRIC::dist(data[c], data[splitPt]);
+
+            if (d + spillEps > splitVal) {
+                rightSpill.push_back(c);
+            }
+            if (d - spillEps < splitVal) {
+                leftSpill.push_back(c);
+            }
+        }
+
         size_t currentIndex = nodes.size();
         //make a new node with children
         nodes.push_back(BallTreeNode({
@@ -211,10 +259,13 @@ private:
                 splitVal,
                 maxRadius,
                 std::vector<size_t>(),
+                std::vector<size_t>(),
                 mkNodeRecursive(currentIndex,
-                                leftChildren),
+                                leftChildren,
+                                leftSpill),
                 mkNodeRecursive(currentIndex,
-                                rightChildren)
+                                rightChildren,
+                                rightSpill)
               }));
         return nodes.size()-1;
     };
@@ -224,7 +275,8 @@ public:
 
     ///create a BallTree with a dataset d, and a default maximum leaf-node size of 100 children
     BallTree(std::vector<OBJ>& d,
-           const size_t& mLeafSize = 100) : data(d) {
+            const double& spillEps = 0.0,
+            const size_t& mLeafSize = 100) : data(d), spillEps(spillEps) {
         maxLeafSize = mLeafSize;
         dataNodes.resize(data.size());
         dataNodes.reserve(data.capacity());
@@ -236,7 +288,8 @@ public:
             dataIndices[i] = i;
         }
         root = mkNodeRecursive(0,
-                               dataIndices);
+                               dataIndices,
+                               std::vector<size_t>());
     }
 
     ///Update the tree max-radius values for the item at dataIndex, which used to have the value oldRadius

@@ -44,7 +44,7 @@ public:
         int dbfd;
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
-        dbfd = open(std::string("sift_mmapped").c_str(), O_RDWR);
+        dbfd = open(std::string("sift_mmapready").c_str(), O_RDWR);
         dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
@@ -56,7 +56,7 @@ public:
         int qfd;
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
-        qfd = open(std::string("sift_mmapped").c_str(), O_RDWR);
+        qfd = open(std::string("sift_queries_mmapready").c_str(), O_RDWR);
         qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
@@ -90,6 +90,10 @@ public:
         }
         double knnEnd = get_wall_time();
 
+        munmap(dbfmap, fsize);
+        close(dbfd);
+        munmap(qfmap, qfsize);
+        close(qfd);
         return {buildEnd - buildStart, knnEnd - knnStart};
     }
 
@@ -107,7 +111,7 @@ public:
         int dbfd;
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
-        dbfd = open(std::string("gist_mmapped").c_str(), O_RDWR);
+        dbfd = open(std::string("gist_mmapready").c_str(), O_RDWR);
         dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
@@ -119,7 +123,7 @@ public:
         int qfd;
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
-        qfd = open(std::string("gist_mmapped").c_str(), O_RDWR);
+        qfd = open(std::string("gist_queries_mmapready").c_str(), O_RDWR);
         qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
@@ -153,6 +157,10 @@ public:
         }
         double knnEnd = get_wall_time();
 
+        munmap(dbfmap, fsize);
+        close(dbfd);
+        munmap(qfmap, qfsize);
+        close(qfd);
         return {buildEnd - buildStart, knnEnd - knnStart};
     }
 
@@ -171,7 +179,7 @@ public:
         int dbfd;
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
-        dbfd = open(std::string("sift_mmapped").c_str(), O_RDWR);
+        dbfd = open(std::string("sift_mmapready").c_str(), O_RDWR);
         dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
@@ -183,7 +191,7 @@ public:
         int qfd;
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
-        qfd = open(std::string("sift_mmapped").c_str(), O_RDWR);
+        qfd = open(std::string("sift_queries_mmapready").c_str(), O_RDWR);
         qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
@@ -274,6 +282,10 @@ public:
                 ++i;
             }
         }
+        munmap(dbfmap, fsize);
+        close(dbfd);
+        munmap(qfmap, qfsize);
+        close(qfd);
         return total / querydata.size() / knn;
     }
 
@@ -292,7 +304,7 @@ public:
         int dbfd;
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
-        dbfd = open(std::string("sift_mmapped").c_str(), O_RDWR);
+        dbfd = open(std::string("sift_mmapready").c_str(), O_RDWR);
         dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
@@ -304,7 +316,7 @@ public:
         int qfd;
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
-        qfd = open(std::string("sift_mmapped").c_str(), O_RDWR);
+        qfd = open(std::string("sift_queries_mmapready").c_str(), O_RDWR);
         qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
@@ -395,6 +407,10 @@ public:
                 ++i;
             }
         }
+        munmap(dbfmap, fsize);
+        close(dbfd);
+        munmap(qfmap, qfsize);
+        close(qfd);
         return total / querydata.size() / knn;
     }
 
