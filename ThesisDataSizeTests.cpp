@@ -28,7 +28,7 @@ int main (void) {
 
     std::cout << "DATASET SIZE, TREE TYPE, SIFT TIME, GIST TIME" << std::endl;
     std::pair<double, double> times;
-    for (size_t i = 10000; i <= 1000000; i += 10000) {
+    for (size_t i = 50000; i <= 1000000; i += 50000) {
         std::cout << i << ", Brute Force, ";
         times = ThesisTest<
                         BruteForce<DataReferenceEuclideanNode, DataReferenceEuclideanNode>

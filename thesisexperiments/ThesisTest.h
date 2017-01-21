@@ -45,7 +45,7 @@ public:
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
         dbfd = open(std::string("sift_mmapready").c_str(), O_RDWR);
-        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
+        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
             perror("Error mmapping the file");
@@ -57,7 +57,7 @@ public:
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
         qfd = open(std::string("sift_queries_mmapready").c_str(), O_RDWR);
-        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
+        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
             perror("Error mmapping the file");
@@ -73,6 +73,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
+        std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
@@ -112,7 +113,7 @@ public:
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
         dbfd = open(std::string("gist_mmapready").c_str(), O_RDWR);
-        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
+        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
             perror("Error mmapping the file");
@@ -124,7 +125,7 @@ public:
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
         qfd = open(std::string("gist_queries_mmapready").c_str(), O_RDWR);
-        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
+        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
             perror("Error mmapping the file");
@@ -140,6 +141,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
+        std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
@@ -180,7 +182,7 @@ public:
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
         dbfd = open(std::string("sift_mmapready").c_str(), O_RDWR);
-        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
+        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
             perror("Error mmapping the file");
@@ -192,7 +194,7 @@ public:
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
         qfd = open(std::string("sift_queries_mmapready").c_str(), O_RDWR);
-        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
+        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
             perror("Error mmapping the file");
@@ -208,6 +210,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
+        std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
@@ -305,7 +308,7 @@ public:
         float* dbfmap;
         uint64_t fsize = width * dblength * sizeof(float);
         dbfd = open(std::string("sift_mmapready").c_str(), O_RDWR);
-        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED, dbfd, 0));
+        dbfmap = reinterpret_cast<float*>(mmap(NULL, fsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, dbfd, 0));
         if (dbfmap == MAP_FAILED) {
             close(dbfd);
             perror("Error mmapping the file");
@@ -317,7 +320,7 @@ public:
         float* qfmap;
         uint64_t qfsize = width * querylength * sizeof(float);
         qfd = open(std::string("sift_queries_mmapready").c_str(), O_RDWR);
-        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED, qfd, 0));
+        qfmap = reinterpret_cast<float*>(mmap(NULL, qfsize, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_NORESERVE, qfd, 0));
         if (qfmap == MAP_FAILED) {
             close(qfd);
             perror("Error mmapping the file");
@@ -333,6 +336,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
+        std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();

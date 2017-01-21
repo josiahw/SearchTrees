@@ -9,7 +9,7 @@ Four search tree algorithms are implemented: KD-trees; vantage-point ball trees;
 Each tree is templated with a data object and metric (although the KD-tree will only be effective for the Euclidean metric). The data item and metric objects are required to support the following operations:
 * item.value() - return a reference to the underlying data representation of the object (usually a vector)
 * item.radius() - return the sensitivity radius of the object for a reverse-nearest-neighbour query. This can be 0 for normal KNN search objects.
-* item.size() - KD-tree only. This returns the length of the value() vector.
+* item.size() - KD-tree only. This returns the number of values in the item.value() vector.
 * metric::dist(item1, item2) - a static function which returns the distance between item1 and item2 as a double.
 
 ## Reproducing Thesis Results

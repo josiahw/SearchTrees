@@ -135,8 +135,8 @@ private:
         }
 
 
-        nodes[parentIndex].childData.resize(0);
-        nodes[parentIndex].spillChildData.resize(0);
+        std::vector<size_t>().swap(nodes[parentIndex].childData);
+        std::vector<size_t>().swap(nodes[parentIndex].spillChildData);
 
         nodes[parentIndex].leftChildNode = mkNodeRecursive(parentIndex,
                                                         leftChildren,
@@ -192,6 +192,8 @@ private:
                 arma::swap(vals,dists);
             }
         }
+        dists.reset();
+        cands.reset();
         size_t splitPt = centrePoint;
 
         if (spread <= 0.000000001) {
@@ -238,7 +240,7 @@ private:
                 }
             }
         }
-
+        vals.reset();
         //push back inherited spill indices for each child
         for (const auto& c : spillIndices) {
             const double d = METRIC::dist(data[c], data[splitPt]);
