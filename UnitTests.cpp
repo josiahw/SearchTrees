@@ -42,7 +42,7 @@ int main (void) {
     std::cout << "KD-tree ENN test accuracy: " << accuracy << std::endl << std::endl;
 
 
-    /*std::cout << "Number of dims: " << testDims << std::endl;
+    std::cout << "Number of dims: " << testDims << std::endl;
     for (size_t k = 50000; k <= 1000000; k += 50000) {
         testSize = k;
         std::cout << "Dataset size: " << testSize << std::endl;
@@ -67,7 +67,7 @@ int main (void) {
     results = EuclideanTestSearch< KDTree<EuclideanKnnGraphNode, EuclideanKnnGraphNode> >::timeKNNGraph(testKnn, testDims, testSize, 5000);
     for (size_t i = 0; i < results.size(); ++i) {
         std::cout << (i+1)*5000 << "\t" << results[i] << std::endl;
-    }*/
+    }
 
 
     //BallTree tests
@@ -84,7 +84,7 @@ int main (void) {
     accuracy = EuclideanTestSearch< BallTree<EuclideanNode, EuclideanNode> >::accuracyENN(testEnn, testDims, testSize);
     std::cout << "VP-tree ENN test accuracy: " << accuracy << std::endl << std::endl;
 
-    /*std::cout << "Number of dims: " << testDims << std::endl;
+    std::cout << "Number of dims: " << testDims << std::endl;
     for (size_t k = 50000; k <= 1000000; k += 50000) {
         testSize = k;
         std::cout << "Dataset size: " << testSize << std::endl;
@@ -109,7 +109,7 @@ int main (void) {
     results = EuclideanTestSearch< BallTree<EuclideanKnnGraphNode, EuclideanKnnGraphNode> >::timeKNNGraph(testKnn, testDims, testSize, 5000);
     for (size_t i = 0; i < results.size(); ++i) {
         std::cout << (i+1)*5000 << "\t" << results[i] << std::endl;
-    }*/
+    }
 
     //CoverTree tests
     testDims = 2;
@@ -125,7 +125,7 @@ int main (void) {
     accuracy = EuclideanTestSearch< CoverTree<EuclideanNode, EuclideanNode> >::accuracyENN(testEnn, testDims, testSize);
     std::cout << "cover-tree ENN test accuracy: " << accuracy << std::endl << std::endl;
 
-    /*std::cout << "Number of dims: " << testDims << std::endl;
+    std::cout << "Number of dims: " << testDims << std::endl;
     for (size_t k = 50000; k <= 1000000; k += 50000) {
         testSize = k;
         std::cout << "Dataset size: " << testSize << std::endl;
@@ -150,7 +150,7 @@ int main (void) {
     results = EuclideanTestSearch< CoverTree<EuclideanKnnGraphNode, EuclideanKnnGraphNode> >::timeKNNGraph(testKnn, testDims, testSize, 5000);
     for (size_t i = 0; i < results.size(); ++i) {
         std::cout << (i+1)*5000 << "\t" << results[i] << std::endl;
-    }*/
+    }
 
     return 0;
 };

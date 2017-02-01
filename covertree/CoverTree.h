@@ -436,7 +436,7 @@ public:
     std::vector<std::pair<double,size_t>> knnQuery(const OBJ& val,
                                                     const size_t& kneighbours,
                                                     CoverTreeNode*& insertNode,
-                                                    const size_t& maxLeaves) const {
+                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max()) const {
         /*
         Depth-based query for kneighbours closest points to val,
         using a maximum of maxLeaves number of leaf searches.
