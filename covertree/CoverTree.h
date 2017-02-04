@@ -73,7 +73,7 @@ private:
         //TODO: set maxRadius
         if (c->childData.size() > maxLeafSize and c->maxChildDist > c->coverSize*minPointSep) {
 
-            const double epsilon = c->coverSize * scaleFactor;
+            const double epsilon = c->maxChildDist * scaleFactor;
             const double epsilonHalf = epsilon * 0.5;
 
             //init the list of children
