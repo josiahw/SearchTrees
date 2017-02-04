@@ -80,6 +80,8 @@ private:
         //pick the candidate with the best spread from 20 candidates.
         arma::uvec cands = arma::randi<arma::uvec>(20, arma::distr_param(0, dataIndices.size()-1));
         for (size_t i = 0; i < cands.n_elem; ++i) {
+
+            #pragma omp parallel for
             for (size_t j = 0; j < dataIndices.size(); ++j) {
                 dists[j] = METRIC::dist(data[dataIndices[j]], data[dataIndices[cands[i]]]);
             }

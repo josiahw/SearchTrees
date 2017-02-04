@@ -64,11 +64,11 @@ int main (void) {
         std::cout << i << ", Cover tree, ";
         times = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNSIFT(100, i, 1000);
+                        >::timeKNNInsertSIFT(100, i, 1000);
         std::cout << std::get<1>(times) << ", ";
         times = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNGIST(100, i, 1000);
+                        >::timeKNNInsertGIST(100, i, 1000);
         std::cout << std::get<1>(times) << std::endl;
     }
 

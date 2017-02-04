@@ -33,7 +33,7 @@ int main (void) {
     double accuracy;
     std::vector<double> results;
     //KD-Tree tests
-    std::cout << "Testing Exact KD-tree accuracy" << std::endl;
+    /*std::cout << "Testing Exact KD-tree accuracy" << std::endl;
     accuracy = EuclideanTestSearch< KDTree<EuclideanNode, EuclideanNode> >::accuracyKNN(testKnn, testDims, testSize);
     std::cout << "KD-tree KNN test accuracy: " << accuracy << std::endl;
     accuracy = EuclideanTestSearch< KDTree<EuclideanNode, EuclideanNode> >::accuracyInsertKNN(testKnn, testDims, testSize);
@@ -109,7 +109,7 @@ int main (void) {
     results = EuclideanTestSearch< BallTree<EuclideanKnnGraphNode, EuclideanKnnGraphNode> >::timeKNNGraph(testKnn, testDims, testSize, 5000);
     for (size_t i = 0; i < results.size(); ++i) {
         std::cout << (i+1)*5000 << "\t" << results[i] << std::endl;
-    }
+    }*/
 
     //CoverTree tests
     testDims = 2;
