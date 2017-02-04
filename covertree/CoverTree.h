@@ -46,7 +46,7 @@ private:
     std::vector<CoverTreeNode*> dataNodes;
     size_t maxLeafSize;
     const double scaleFactor = 1.0/1.3;
-    const double minPointSep = 1.0/1.3/1.3/1.3/1.3;
+    const double minPointSep = 1.0/1.3/1.3/1.3/1.3/1.3;
 
     void addNeighbour(std::vector<std::pair<double,size_t>>& nHeap, const double& dist, const size_t& ind) const {
         /*
@@ -138,6 +138,7 @@ private:
 
             //sort children and split child nodes
             //TODO: this can be parallel
+            #pragma omp parallel for
             for (size_t i = 0; i < c->childNodes.size(); ++i) {
 
                 if (std::get<1>(c->childNodes[i])->childData.size() > 1) {
@@ -172,7 +173,6 @@ private:
             const size_t& leafLimit,
             CoverTreeNode*& insertNode,
             size_t& leafCount) const {
-        //TODO: make this non-recursive
 
         const static auto indCmp = ([](const std::pair<double,CoverTreeNode*>& a,
                                         const std::pair<double,CoverTreeNode*>& b) {
@@ -250,6 +250,58 @@ private:
                 }
             }
         }
+
+        /*
+        //if there are no children, do the leaf node codepath
+        if (c->childNodes.size() == 0) {
+            for (uint64_t i = 0; i < c->childData.size(); ++i) {
+                addNeighbour(neighbourHeap,
+                             METRIC::dist(data[c->childData[i].second],val),
+                             c->childData[i].second);
+            }
+            ++leafCount;
+            return;
+        }
+
+        //descend depth-first, closest-first
+        arma::Col<double> dists(c->childNodes.size());
+        std::vector<int> sortedInds;
+        sortedInds.resize(c->childNodes.size());
+
+
+
+        for (uint64_t i = 0; i < c->childNodes.size(); ++i) {
+            dists[i] = METRIC::dist(data[c->childNodes[i].second->centroid],val);
+            sortedInds[i] = i;
+            addNeighbour(neighbourHeap, dists[i], c->childNodes[i].second->centroid);
+        }
+
+        const auto indCmp = ([&dists](const int& a,
+                                      const int& b) {
+                                        return dists[a] > dists[b];
+                                    });
+        std::make_heap(sortedInds.begin(),sortedInds.end(),indCmp);
+
+        for (uint64_t i = 0; i < c->childNodes.size(); ++i) {
+
+            if (dists[sortedInds.front()] >
+                std::get<0>(neighbourHeap.front()) + c->childNodes[sortedInds.front()].second->coverSize
+                ) {
+                break;
+            }
+
+            knnQuery_(c->childNodes[sortedInds.front()].second.get(),
+                   neighbourHeap,
+                   val,
+                   0.,
+                   kneighbours,
+                   leafLimit,
+                   insertNode,
+                   leafCount);
+
+            std::pop_heap(sortedInds.begin(),sortedInds.end(),indCmp);
+            sortedInds.resize(sortedInds.size()-1);
+        }*/
     }
 
     void ennQuery_(const CoverTreeNode* c,

@@ -73,7 +73,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
-        //std::random_shuffle(data.begin(),data.end());
+        std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
@@ -287,7 +287,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
-        //std::random_shuffle(data.begin(),data.end());
+        std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
@@ -356,7 +356,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
-        std::random_shuffle(data.begin(),data.end());
+        //std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
@@ -482,7 +482,7 @@ public:
                                 database.colptr(i), width
                                 ));
         }
-        std::random_shuffle(data.begin(),data.end());
+        //std::random_shuffle(data.begin(),data.end());
         double buildStart = get_wall_time();
         Tree t(data, spillepsilon);
         double buildEnd = get_wall_time();
