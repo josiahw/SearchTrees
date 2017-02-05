@@ -46,7 +46,7 @@ private:
     std::vector<CoverTreeNode*> dataNodes;
     size_t maxLeafSize;
     const double scaleFactor = 1.0/1.3;
-    const double minPointSep = 1.0/1.3/1.3/1.3/1.3/1.3;
+    const double minPointSep = 0.001;
 
     void addNeighbour(std::vector<std::pair<double,size_t>>& nHeap, const double& dist, const size_t& ind) const {
         /*
