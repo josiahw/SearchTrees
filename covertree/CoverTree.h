@@ -15,7 +15,6 @@
 struct CoverTreeNode {
     CoverTreeNode* parent;
     size_t centroid;
-    size_t totalChildren;
     double coverSize;
     double maxChildDist;
     double maxChildRadius;
@@ -47,7 +46,7 @@ private:
     std::vector<CoverTreeNode*> dataNodes;
     size_t maxLeafSize;
     const double scaleFactor = 1.0/1.3;
-    const double minPointSep = std::numeric_limits<double>::min();
+    const double minPointSep = 0.02;
 
     void addNeighbour(std::vector<std::pair<double,size_t>>& nHeap, const double& dist, const size_t& ind) const {
         /*
@@ -85,7 +84,6 @@ private:
             c->childNodes.push_back({std::get<0>(c->childData[0]), std::unique_ptr<CoverTreeNode>(
                                                     new CoverTreeNode{c,
                                                         size_t(std::get<1>(c->childData[0])),
-                                                        0,
                                                         epsilon,
                                                         0.0,
                                                         data[std::get<1>(c->childData[0])].radius(),
@@ -119,7 +117,6 @@ private:
                     c->childNodes.push_back({std::get<0>(c->childData[nextChild]), std::unique_ptr<CoverTreeNode>(
                                                     new CoverTreeNode{c,
                                                         size_t(std::get<1>(c->childData[nextChild])),
-                                                        0,
                                                         epsilon,
                                                         0.0,
                                                         data[std::get<1>(c->childData[nextChild])].radius(),
@@ -151,7 +148,6 @@ private:
                                         });
                     std::sort(std::get<1>(c->childNodes[i])->childData.begin(), std::get<1>(c->childNodes[i])->childData.end(), dataCmp);
                 }
-                c->childNodes[i].second->totalChildren = std::get<1>(c->childNodes[i])->childData.size();
 
                 //set node metadata
                 if (c->childNodes[i].second->childData.size() > 0) {
@@ -226,9 +222,8 @@ private:
                 std::vector<std::pair<double,CoverTreeNode*>> round1Cands;
                 round1Cands.reserve(c->childNodes.size());
                 //for all candidates that could be closer than the furthest neighbour, add them to the candidate heap (and check if they are a closer neighbour)
-                double closestKNN = std::numeric_limits<double>::max();
                 for (;candidate != c->childNodes.end() and
-                     candidate->first - candidate->second->coverSize < std::min(valDist + neighbourHeap.front().first,closestKNN);
+                     candidate->first - candidate->second->coverSize < valDist + neighbourHeap.front().first;
                      ++candidate) {
                     if (candidate->first - candidate->second->maxChildDist < valDist + neighbourHeap.front().first) {
                         const double dist = METRIC::dist(data[candidate->second->centroid],val);
@@ -236,22 +231,19 @@ private:
                                      dist,
                                      candidate->second->centroid);
                         round1Cands.push_back({dist, candidate->second.get()});
-                        if (candidate->second->totalChildren >= kneighbours) {
-                            closestKNN = std::min(dist + candidate->second->maxChildDist,closestKNN);
-                        }
                     }
                 }
-                double filterLimit = std::min(neighbourHeap.front().first, closestKNN);
+
                 //remove candidates which are not candidates any more.
                 while (candidates.size() > 0 and candidates.front().first - candidates.front().second->maxChildDist >
-                        filterLimit) {
+                        neighbourHeap.front().first) {
                     std::pop_heap(candidates.begin(),candidates.end(),indCmp);
                     candidates.resize(candidates.size()-1);
                 }
 
                 //add new candidates
                 for (auto& cand : round1Cands) {
-                    if (cand.first - cand.second->maxChildDist <= filterLimit) {
+                    if (cand.first - cand.second->maxChildDist <= neighbourHeap.front().first) {
                         candidates.push_back(cand);
                         std::push_heap(candidates.begin(), candidates.end(), indCmp);
                     }
@@ -397,7 +389,6 @@ public:
         root = std::unique_ptr<CoverTreeNode>(
                                      new CoverTreeNode{NULL,
                                             size_t(0),
-                                            inds.size(),
                                             epsilon,
                                             epsilon,
                                             maxRadius,
@@ -543,7 +534,7 @@ public:
     void insert(OBJ& item, CoverTreeNode* node = NULL) {
         //set target node if a valid node is not provided
         double dist;
-        if (node == NULL) { //if we're not given a start node to search from
+        if (node == NULL) {
             CoverTreeNode* nextNode = root.get();
             dist = METRIC::dist(data[nextNode->centroid],item);
             if (dist < nextNode->coverSize) {
@@ -553,7 +544,6 @@ public:
 
             while ( (node == NULL or node->childData.size() == 0) and nextNode != node) {
                 node = nextNode;
-                node->totalChildren++;
                 if (node->childNodes.size() > 0) {
                     double minDist = dist - node->childNodes[0].second->coverSize;
                     double maxDist = dist + node->childNodes[0].second->coverSize;
@@ -579,7 +569,7 @@ public:
                 }
             }
         } else {
-            //Using the target node, find the insertion point and filter changes up the tree
+            //CoverTreeNode* nextNode = root.get();
             while (node != NULL) {
                 dist = METRIC::dist(data[node->centroid],item);
                 if (dist < node->coverSize) {
@@ -593,7 +583,6 @@ public:
                 dist = METRIC::dist(data[p->centroid],item);
                 p->maxChildDist = std::max(dist,p->maxChildDist);
                 p->maxChildRadius = std::max(item.radius(),p->maxChildRadius);
-                p->totalChildren++;
             }
 
             if (node == NULL) {
@@ -605,7 +594,7 @@ public:
 
         dist = METRIC::dist(data[node->centroid],item);
         if (node == root.get() and dist > node->coverSize) {
-            //WARNING: this will screw with child counts
+
             double newCoverFactor = root->coverSize / scaleFactor;
             if (node->childNodes.size() == 0) {
                 //insert item
@@ -627,7 +616,6 @@ public:
                 //create a new root
                 auto tmp = std::unique_ptr<CoverTreeNode>(
                                                         new CoverTreeNode{NULL,
-                                                            size_t(data.size()),
                                                             size_t(data.size()),
                                                             newCoverFactor,
                                                             std::min(root->maxChildDist + dist, newCoverFactor),
@@ -652,7 +640,6 @@ public:
             node->childNodes.push_back({dist, std::unique_ptr<CoverTreeNode>(
                                                     new CoverTreeNode{node,
                                                         size_t(data.size()),
-                                                        1,
                                                         node->coverSize * scaleFactor,
                                                         0.0,
                                                         item.radius(),
