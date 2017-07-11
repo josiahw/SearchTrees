@@ -40,17 +40,11 @@ endif()
 # The following folder will be included
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/bruteforce")
-add_subdirectory(bruteforce)
 include_directories("${PROJECT_SOURCE_DIR}/kdtree")
-add_subdirectory(kdtree)
 include_directories("${PROJECT_SOURCE_DIR}/balltree")
-add_subdirectory(balltree)
 include_directories("${PROJECT_SOURCE_DIR}/covertree")
-add_subdirectory(covertree)
 include_directories("${PROJECT_SOURCE_DIR}/testing")
-add_subdirectory(testing)
 include_directories("${PROJECT_SOURCE_DIR}/thesisexperiments")
-add_subdirectory(thesisexperiments)
 
 #create executables
 add_executable(UnitTests ${PROJECT_SOURCE_DIR}/UnitTests.cpp)
@@ -59,38 +53,13 @@ add_executable(ThesisLeafLimitTests ${PROJECT_SOURCE_DIR}/ThesisLeafLimitTests.c
 add_executable(ThesisSpillTreeTests ${PROJECT_SOURCE_DIR}/ThesisSpillTreeTests.cpp)
 
 target_link_libraries(UnitTests
-                    euclideannode
-                    euclideanknnnode
-                    bruteforce
-                    kdtree
-                    balltree
-                    covertree
-                    testtree
                     ${ARMADILLO_LIBRARIES})
 
 target_link_libraries(ThesisDataSizeTests
-                    datareferenceeuclideannode
-                    bruteforce
-                    kdtree
-                    balltree
-                    covertree
-                    thesistest
                     ${ARMADILLO_LIBRARIES})
 
 target_link_libraries(ThesisLeafLimitTests
-                    datareferenceeuclideannode
-                    bruteforce
-                    kdtree
-                    balltree
-                    covertree
-                    thesistest
                     ${ARMADILLO_LIBRARIES})
 
 target_link_libraries(ThesisSpillTreeTests
-                    datareferenceeuclideannode
-                    bruteforce
-                    kdtree
-                    balltree
-                    covertree
-                    thesistest
                     ${ARMADILLO_LIBRARIES})
