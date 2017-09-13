@@ -28,20 +28,21 @@ int main (void) {
     std::cout << "SPILL EPSILON, TREE TYPE, SIFT TIME, SIFT ACCURACY, GIST TIME, GIST ACCURACY" << std::endl;
     std::pair<double, double> times;
     double accuracy = 0.;
+    double stddev = 0.;
     for (size_t j = 2; j <= 1000; j = 3*j/2) {
         double i = j/500.;
         std::cout << i << ", KD tree, ";
         times = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::timeKNNSIFT(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        accuracy = ThesisTest<
+        std::tie(accuracy,stddev) = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::accuracyKNNSIFT(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        std::cout << std::get<1>(times) << ", " << accuracy << ", ";
+        std::cout << std::get<1>(times) << ", " << accuracy << " +/- " << stddev << ", ";
         times = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::timeKNNGIST(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        accuracy = ThesisTest<
+        std::tie(accuracy,stddev) = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::accuracyKNNGIST(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
         std::cout << std::get<1>(times) << ", " << accuracy << std::endl;
@@ -51,14 +52,14 @@ int main (void) {
         times = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::timeKNNSIFT(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        accuracy = ThesisTest<
+        std::tie(accuracy,stddev) = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::accuracyKNNSIFT(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        std::cout << std::get<1>(times) << ", " << accuracy << ", ";
+        std::cout << std::get<1>(times) << ", " << accuracy << " +/- " << stddev << ", ";
         times = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::timeKNNGIST(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        accuracy = ThesisTest<
+        std::tie(accuracy,stddev) = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::accuracyKNNGIST(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
         std::cout << std::get<1>(times) << ", " << accuracy << std::endl;
@@ -68,14 +69,14 @@ int main (void) {
         times = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::timeKNNSIFT(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        accuracy = ThesisTest<
+        std::tie(accuracy,stddev) = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::accuracyKNNSIFT(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        std::cout << std::get<1>(times) << ", " << accuracy << ", ";
+        std::cout << std::get<1>(times) << ", " << accuracy << " +/- " << stddev << ", ";
         times = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::timeKNNGIST(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
-        accuracy = ThesisTest<
+        std::tie(accuracy,stddev) = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
                         >::accuracyKNNGIST(100, 1000000, 1000, std::numeric_limits<size_t>::max(), i);
         std::cout << std::get<1>(times) << ", " << accuracy << std::endl;

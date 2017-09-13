@@ -51,6 +51,7 @@ add_executable(UnitTests ${PROJECT_SOURCE_DIR}/UnitTests.cpp)
 add_executable(ThesisDataSizeTests ${PROJECT_SOURCE_DIR}/ThesisDataSizeTests.cpp)
 add_executable(ThesisLeafLimitTests ${PROJECT_SOURCE_DIR}/ThesisLeafLimitTests.cpp)
 add_executable(ThesisSpillTreeTests ${PROJECT_SOURCE_DIR}/ThesisSpillTreeTests.cpp)
+add_executable(ThesisScaleApproxTests ${PROJECT_SOURCE_DIR}/ThesisScaleApproxTests.cpp)
 
 target_link_libraries(UnitTests
                     ${ARMADILLO_LIBRARIES})
@@ -62,4 +63,7 @@ target_link_libraries(ThesisLeafLimitTests
                     ${ARMADILLO_LIBRARIES})
 
 target_link_libraries(ThesisSpillTreeTests
+                    ${ARMADILLO_LIBRARIES})
+                    
+target_link_libraries(ThesisScaleApproxTests
                     ${ARMADILLO_LIBRARIES})

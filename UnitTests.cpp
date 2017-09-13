@@ -17,6 +17,7 @@
 #include <iostream>
 #include <sstream>
 
+//#include "InMemoryKDTree.h"
 #include "KDTree.h"
 #include "CoverTree.h"
 #include "BallTree.h"

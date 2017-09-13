@@ -327,7 +327,9 @@ public:
     std::vector<std::pair<double,size_t>> knnQuery(const OBJ& val,
                                                     const size_t& kneighbours,
                                                     size_t& homeNode,
-                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max()) const {
+                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max(),
+                                                    const double& s1 = 1.0,
+                                                    const double& s2 = 1.0) const {
         bool homeSet = false;
 
         //initialise heaps

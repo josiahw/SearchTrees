@@ -14,16 +14,22 @@ class EuclideanNode {
 private:
     arma::Col<double> val;
     double rad;
+    size_t ind = 0;
+    static size_t indexctr;
 
 public:
     EuclideanNode(const arma::Col<double>& v) {
         val = v;
         rad = 0.;
+        //ind = EuclideanNode::indexctr;
+        //EuclideanNode::indexctr++;
     }
 
     EuclideanNode(const arma::Col<double>& v, const double& r) {
         val = v;
         rad = r;
+        //ind = EuclideanNode::indexctr;
+        //EuclideanNode::indexctr++;
     }
 
 

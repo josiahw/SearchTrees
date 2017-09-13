@@ -15,14 +15,27 @@ class DataReferenceEuclideanNode {
 private:
     arma::Col<float> val;
     double rad;
+    size_t ind = 0;
 
 public:
+
     DataReferenceEuclideanNode(float* v, const size_t& width) : val(v, width, false) {
+        static size_t indexctr = 0;
         rad = 0.;
+        ind = indexctr;
+        indexctr++;
     }
 
     DataReferenceEuclideanNode(float* v, const size_t& width, const double& r) : val(v, width, false) {
+        static size_t indexctr = 0;
         rad = r;
+        ind = indexctr;
+        indexctr++;
+    }
+
+    DataReferenceEuclideanNode(float* v, const size_t& width, const double& r, const size_t& index) : val(v, width, false) {
+        rad = r;
+        ind = ind;
     }
 
 
@@ -36,6 +49,10 @@ public:
 
     size_t size() const {
         return val.n_elem;
+    }
+
+    size_t index() const {
+        return ind;
     }
 
     ///this is the required function implementation for the METRIC object

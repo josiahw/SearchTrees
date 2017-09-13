@@ -20,8 +20,8 @@ public:
 
     ///dummy creation for brute force search
     BruteForce(std::vector<OBJ>& d,
-           const double& spillEps = 0.0,
-           const size_t& mLeafSize = 100) : data(d) { }
+            const double& spillEps = 0.0,
+            const size_t& mLeafSize = 100) : data(d) { }
 
     ///dummy radius update for brute force search
     void updateRadius(const size_t& dataIndex, const double& oldRadius) {
@@ -32,7 +32,9 @@ public:
     std::vector<std::pair<double,size_t>> knnQuery(const OBJ& val,
                                                     const size_t& kneighbours,
                                                     size_t& homeNode,
-                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max()) const {
+                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max(),
+                                                    const double& s1 = 1.0,
+                                                    const double& s2 = 1.0) const {
 
         static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                        const std::pair<double,size_t>& b) {

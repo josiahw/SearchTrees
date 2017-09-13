@@ -15,6 +15,8 @@ private:
     arma::Col<double> val;
     std::vector<std::pair<double, size_t>> neighbours;
     size_t maxNeighbours;
+    size_t ind = 0;
+    static size_t indexctr;
 
     const static bool neighbourCmp(const std::pair<double,size_t>& a,
                              const std::pair<double,size_t>& b) {
@@ -25,6 +27,8 @@ public:
     EuclideanKnnGraphNode(const arma::Col<double>& v, size_t k) {
         val = v;
         maxNeighbours = k;
+        //ind = EuclideanKnnGraphNode::indexctr;
+        //EuclideanKnnGraphNode::indexctr++;
     }
 
     std::vector<std::pair<double, size_t>> getNeighbours() const {

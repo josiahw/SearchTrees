@@ -172,7 +172,9 @@ private:
             const size_t& kneighbours,
             const size_t& leafLimit,
             CoverTreeNode*& insertNode,
-            size_t& leafCount) const {
+            size_t& leafCount,
+            const double& s1 = 1.0,
+            const double& s2 = 1.0) const {
 
         const static auto indCmp = ([](const std::pair<double,CoverTreeNode*>& a,
                                         const std::pair<double,CoverTreeNode*>& b) {
@@ -191,12 +193,12 @@ private:
             if (c->childNodes.size() == 0) {
                 //when querying children, we eliminate as many possibilities as we can before calculating the distance
                 auto candidate = c->childData.begin();
-                const double vmin = valDist - neighbourHeap.front().first;
+                const double vmin = valDist * s2 - neighbourHeap.front().first * s1;
                 while (candidate != c->childData.end() and candidate->first < vmin) {
                     ++candidate;
                 }
                 //while candidates are possibly closer than the furthers neighbour, check them and add them to the neighbour heap
-                for (; candidate != c->childData.end() and candidate->first < valDist + neighbourHeap.front().first; ++candidate) {
+                for (; candidate != c->childData.end() and candidate->first < valDist * s2 + neighbourHeap.front().first * s1; ++candidate) {
                     const double dist = METRIC::dist(data[candidate->second],val);
                     addNeighbour(neighbourHeap,
                                  dist,
@@ -214,7 +216,7 @@ private:
 
                 //this first step pre-filters candidates by distance for expanding the tree, and adds their centroids to the neighbour heap
                 auto candidate = c->childNodes.begin();
-                const double vmin = valDist - neighbourHeap.front().first - c->childNodes[0].second->coverSize;
+                const double vmin = valDist * s2 - neighbourHeap.front().first * s1 - c->childNodes[0].second->coverSize;
                 while (candidate != c->childNodes.end() and candidate->first < vmin) {
                     ++candidate;
                 }
@@ -223,9 +225,9 @@ private:
                 round1Cands.reserve(c->childNodes.size());
                 //for all candidates that could be closer than the furthest neighbour, add them to the candidate heap (and check if they are a closer neighbour)
                 for (;candidate != c->childNodes.end() and
-                     candidate->first - candidate->second->coverSize < valDist + neighbourHeap.front().first;
+                     candidate->first - candidate->second->coverSize < valDist * s2 + neighbourHeap.front().first * s1;
                      ++candidate) {
-                    if (candidate->first - candidate->second->maxChildDist < valDist + neighbourHeap.front().first) {
+                    if (candidate->first - candidate->second->maxChildDist < valDist * s2 + neighbourHeap.front().first * s1) {
                         const double dist = METRIC::dist(data[candidate->second->centroid],val);
                         addNeighbour(neighbourHeap,
                                      dist,
@@ -235,8 +237,8 @@ private:
                 }
 
                 //remove candidates which are not candidates any more.
-                while (candidates.size() > 0 and candidates.front().first - candidates.front().second->maxChildDist >
-                        neighbourHeap.front().first) {
+                while (candidates.size() > 0 and candidates.front().first * s2 - candidates.front().second->maxChildDist >
+                        neighbourHeap.front().first * s1) {
                     std::pop_heap(candidates.begin(),candidates.end(),indCmp);
                     candidates.resize(candidates.size()-1);
                 }
@@ -436,7 +438,9 @@ public:
     std::vector<std::pair<double,size_t>> knnQuery(const OBJ& val,
                                                     const size_t& kneighbours,
                                                     CoverTreeNode*& insertNode,
-                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max()) const {
+                                                    const size_t& maxLeaves = std::numeric_limits<size_t>::max(),
+                                                    const double& s1 = 1.0,
+                                                    const double& s2 = 1.0) const {
         /*
         Depth-based query for kneighbours closest points to val,
         using a maximum of maxLeaves number of leaf searches.
@@ -445,7 +449,6 @@ public:
         */
 
         //initialise heaps
-
         std::vector<std::pair<double,size_t>> neighbourHeap(kneighbours,
                                                     {std::numeric_limits<double>::max(), size_t(0)});
         const double& dist = METRIC::dist(data[root->centroid],val);
@@ -459,7 +462,9 @@ public:
                 kneighbours,
                 maxLeaves,
                 insertNode,
-                leaves);
+                leaves,
+                s1,
+                s2);
 
         return neighbourHeap;
     }
@@ -472,8 +477,6 @@ public:
         NOTE: maxLeaves should be 1 for spill-tree search,
         since double values are not filtered.
         */
-
-        //initialise heaps
 
         CoverTreeNode* c;
 
