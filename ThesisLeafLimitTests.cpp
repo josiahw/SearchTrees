@@ -32,51 +32,51 @@ int main (void) {
         std::cout << i << ", KD tree, ";
         times = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNSIFT(100, 1000000, 1000, i);
+                        >::timeKNNSIFT(10, 1000000, 1000, i);
         accuracy = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::accuracyKNNSIFT(100, 1000000, 1000, i).first;
+                        >::accuracyKNNSIFT(10, 1000000, 1000, i).first;
         std::cout << std::get<1>(times) << ", " << accuracy << ", ";
         times = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNGIST(100, 1000000, 1000, i);
+                        >::timeKNNGIST(10, 1000000, 1000, i);
         accuracy = ThesisTest<
                         KDTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::accuracyKNNGIST(100, 1000000, 1000, i).first;
+                        >::accuracyKNNGIST(10, 1000000, 1000, i).first;
         std::cout << std::get<1>(times) << ", " << accuracy << std::endl;
 
 
         std::cout << i << ", VP tree, ";
         times = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNSIFT(100, 1000000, 1000, i);
+                        >::timeKNNSIFT(10, 1000000, 1000, i);
         accuracy = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::accuracyKNNSIFT(100, 1000000, 1000, i).first;
+                        >::accuracyKNNSIFT(10, 1000000, 1000, i).first;
         std::cout << std::get<1>(times) << ", " << accuracy << ", ";
         times = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNGIST(100, 1000000, 1000, i);
+                        >::timeKNNGIST(10, 1000000, 1000, i);
         accuracy = ThesisTest<
                         BallTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::accuracyKNNGIST(100, 1000000, 1000, i).first;
+                        >::accuracyKNNGIST(10, 1000000, 1000, i).first;
         std::cout << std::get<1>(times) << ", " << accuracy << std::endl;
 
 
         std::cout << i << ", Cover tree, ";
         times = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNSIFT(100, 1000000, 1000, i);
+                        >::timeKNNSIFT(10, 1000000, 1000, i);
         accuracy = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::accuracyKNNSIFT(100, 1000000, 1000, i).first;
+                        >::accuracyKNNSIFT(10, 1000000, 1000, i).first;
         std::cout << std::get<1>(times) << ", " << accuracy << ", ";
         times = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::timeKNNGIST(100, 1000000, 1000, i);
+                        >::timeKNNGIST(10, 1000000, 1000, i);
         accuracy = ThesisTest<
                         CoverTree<DataReferenceEuclideanNode, DataReferenceEuclideanNode>
-                        >::accuracyKNNGIST(100, 1000000, 1000, i).first;
+                        >::accuracyKNNGIST(10, 1000000, 1000, i).first;
         std::cout << std::get<1>(times) << ", " << accuracy << std::endl;
     }
 

@@ -254,13 +254,19 @@ public:
         SearchResults results;
         std::vector<DataReferenceEuclideanNode> data;
         data.reserve(datasize);
-        for (size_t i = 0; i < datasize; ++i) {
-            data.push_back(DataReferenceEuclideanNode(
-                                db.data.colptr(i), db.width
-                                ));
-        }
         double buildStart = get_wall_time();
+        data.push_back(DataReferenceEuclideanNode(
+                                db.data.colptr(0), db.width
+                                ));
         Tree t(data);
+        for (size_t i = 1; i < datasize; ++i) {
+            //add the itemm to the tree
+            auto item = DataReferenceEuclideanNode(
+                                db.data.colptr(i), db.width
+                                );
+            t.insert(item);
+        }
+        //std::random_shuffle(data.begin(),data.end());
         double buildEnd = get_wall_time();
         results.buildTime = buildEnd - buildStart;
         std::vector<DataReferenceEuclideanNode> querydata;
@@ -270,10 +276,45 @@ public:
                                 ));
         }
         
-        
-        for (size_t i = 0; i < s1Vals.size(); ++i) {
-            const auto& s1 = s1Vals[i];
-            const auto& s2 = s2Vals[i];
+        //make a stack and do a linear scan
+        static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
+                                       const std::pair<double,size_t>& b) {
+            return std::get<0>(a) == std::get<0>(b) ? std::get<1>(a) < std::get<1>(b) : std::get<0>(a) < std::get<0>(b);
+        });
+        int cnt = 0;
+        std::vector<std::vector<std::pair<double,size_t>>> neighbourStacks(querydata.size());
+        for (auto& q : querydata) {
+            auto& neighbourStack = neighbourStacks[cnt];
+            cnt++;
+            for (size_t i = 0; i < knn; ++i) {
+                double dist = DataReferenceEuclideanNode::dist(data[i],q);
+                neighbourStack.push_back(std::make_pair(dist,i));
+
+            }
+            std::make_heap(neighbourStack.begin(),
+                               neighbourStack.end(),
+                               neighbourCmp);
+            for (size_t i = knn; i < data.size(); ++i) {
+                double dist = DataReferenceEuclideanNode::dist(data[i],q);
+                if (dist < std::get<0>(neighbourStack.front())) {
+                    std::pop_heap(neighbourStack.begin(),
+                                  neighbourStack.end(),
+                                  neighbourCmp);
+                    neighbourStack.back() = std::make_pair(dist,i);
+                    std::push_heap(neighbourStack.begin(),
+                                   neighbourStack.end(),
+                                   neighbourCmp);
+                }
+
+            }
+            //sort both sets of neighbours
+            std::sort(neighbourStack.begin(),
+                       neighbourStack.end(),
+                       neighbourCmp);
+        }
+        for (size_t k = 0; k < s1Vals.size(); ++k) {
+            const auto& s1 = s1Vals[k];
+            const auto& s2 = s2Vals[k];
             typename Tree::nodeReturnType tmp;
             double knnStart = get_wall_time();
             for (auto& q : querydata) {
@@ -283,48 +324,15 @@ public:
             results.queryTime.push_back(knnEnd - knnStart);
             std::vector<double> totals;
             totals.reserve(querydata.size());
+            cnt = 0;
             for (auto& q : querydata) {
+                auto& neighbourStack = neighbourStacks[cnt];
+                cnt++;
                 auto results = t.knnQuery(q, knn, tmp, std::numeric_limits<size_t>::max(), s1, s2);
-
-                //make a stack and do a linear scan
-                static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
-                                               const std::pair<double,size_t>& b) {
-                    return std::get<0>(a) < std::get<0>(b);
-                });
-
-
-
-                std::vector<std::pair<double,size_t>> neighbourStack;
-                for (size_t i = 0; i < knn; ++i) {
-                    double dist = DataReferenceEuclideanNode::dist(data[i],q);
-                    neighbourStack.push_back(std::make_pair(dist,i));
-
-                }
-                std::make_heap(neighbourStack.begin(),
-                                   neighbourStack.end(),
-                                   neighbourCmp);
-                for (size_t i = knn; i < data.size(); ++i) {
-                    double dist = DataReferenceEuclideanNode::dist(data[i],q);
-                    if (dist < std::get<0>(neighbourStack.front())) {
-                        std::pop_heap(neighbourStack.begin(),
-                                      neighbourStack.end(),
-                                      neighbourCmp);
-                        neighbourStack.back() = std::make_pair(dist,i);
-                        std::push_heap(neighbourStack.begin(),
-                                       neighbourStack.end(),
-                                       neighbourCmp);
-                    }
-
-                }
-                //sort both sets of neighbours
-                std::sort(neighbourStack.begin(),
-                           neighbourStack.end(),
-                           neighbourCmp);
-
                 std::sort(results.begin(),
                            results.end(),
                            neighbourCmp);
-
+                
                 //check all children for matches
                 size_t i = 0;
                 size_t j = 0;
