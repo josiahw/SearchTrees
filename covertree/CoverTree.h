@@ -183,9 +183,10 @@ private:
 
         std::vector<std::pair<double,CoverTreeNode*>> candidates;
         candidates.reserve(8192);
-        candidates.push_back({METRIC::dist(data[c->centroid],val),c});
+        candidates.push_back({valDist,c});
         while (candidates.size() > 0) {
             std::tie(valDist, c) = candidates.front();
+            const double valDistScaled = (valDist + c->maxChildDist * s1);
             std::pop_heap(candidates.begin(),candidates.end(),indCmp);
             candidates.resize(candidates.size()-1);
 
@@ -193,12 +194,14 @@ private:
             if (c->childNodes.size() == 0) {
                 //when querying children, we eliminate as many possibilities as we can before calculating the distance
                 auto candidate = c->childData.begin();
-                const double vmin = valDist * s2 - neighbourHeap.front().first * s1;
-                while (candidate != c->childData.end() and candidate->first < vmin) {
+                const double vmin = valDistScaled - neighbourHeap.front().first;
+                while (candidate != c->childData.end() and candidate->first * s1 < vmin) {
                     ++candidate;
                 }
                 //while candidates are possibly closer than the furthers neighbour, check them and add them to the neighbour heap
-                for (; candidate != c->childData.end() and candidate->first < valDist * s2 + neighbourHeap.front().first * s1; ++candidate) {
+                for (;candidate != c->childData.end() and 
+                     valDistScaled - candidate->first * s1 < neighbourHeap.front().first;
+                     ++candidate) {
                     const double dist = METRIC::dist(data[candidate->second],val);
                     addNeighbour(neighbourHeap,
                                  dist,
@@ -216,39 +219,33 @@ private:
 
                 //this first step pre-filters candidates by distance for expanding the tree, and adds their centroids to the neighbour heap
                 auto candidate = c->childNodes.begin();
-                const double vmin = valDist * s2 - neighbourHeap.front().first * s1 - c->childNodes[0].second->coverSize;
-                while (candidate != c->childNodes.end() and candidate->first < vmin) {
+                const double vmin = valDistScaled - neighbourHeap.front().first - c->childNodes[0].second->coverSize * s1;
+                //const double origMaxDist = neighbourHeap.front().first;
+                while (candidate != c->childNodes.end() and candidate->first * s1 < vmin) {
                     ++candidate;
                 }
-                //std::pair<double,CoverTreeNode*> best = {std::numeric_limits<double>::max(), NULL};
-                std::vector<std::pair<double,CoverTreeNode*>> round1Cands;
-                round1Cands.reserve(c->childNodes.size());
-                //for all candidates that could be closer than the furthest neighbour, add them to the candidate heap (and check if they are a closer neighbour)
+                
+                //iterate until we hit the maximum possible neighbour value
                 for (;candidate != c->childNodes.end() and
-                     candidate->first - candidate->second->coverSize < valDist * s2 + neighbourHeap.front().first * s1;
+                     valDistScaled - (candidate->first + candidate->second->coverSize) * s1 < neighbourHeap.front().first;
                      ++candidate) {
-                    if (candidate->first - candidate->second->maxChildDist < valDist * s2 + neighbourHeap.front().first * s1) {
+                     
+                    if (valDistScaled - (candidate->first + candidate->second->maxChildDist) * s1 < neighbourHeap.front().first) {
                         const double dist = METRIC::dist(data[candidate->second->centroid],val);
                         addNeighbour(neighbourHeap,
-                                     dist,
+                                     dist * s2,
                                      candidate->second->centroid);
-                        round1Cands.push_back({dist, candidate->second.get()});
-                    }
-                }
-
-                //remove candidates which are not candidates any more.
-                while (candidates.size() > 0 and candidates.front().first * s2 - candidates.front().second->maxChildDist >
-                        neighbourHeap.front().first * s1) {
-                    std::pop_heap(candidates.begin(),candidates.end(),indCmp);
-                    candidates.resize(candidates.size()-1);
-                }
-
-                //add new candidates
-                for (auto& cand : round1Cands) {
-                    if (cand.first - cand.second->maxChildDist <= neighbourHeap.front().first) {
-                        candidates.push_back(cand);
+                        candidates.push_back({dist - candidate->second->maxChildDist * s1, candidate->second.get()});
                         std::push_heap(candidates.begin(), candidates.end(), indCmp);
                     }
+                    
+                }
+
+                //remove candidates from the top of the stack which are not valid any more.
+                while (candidates.size() > 0 and candidates.front().first >
+                        neighbourHeap.front().first) {
+                    std::pop_heap(candidates.begin(),candidates.end(),indCmp);
+                    candidates.resize(candidates.size()-1);
                 }
             }
         }
@@ -452,13 +449,13 @@ public:
         std::vector<std::pair<double,size_t>> neighbourHeap(kneighbours,
                                                     {std::numeric_limits<double>::max(), size_t(0)});
         const double& dist = METRIC::dist(data[root->centroid],val);
-        addNeighbour(neighbourHeap, dist, root->centroid);
+        addNeighbour(neighbourHeap, dist * s2, root->centroid);
         insertNode = NULL;
         size_t leaves = 0;
         knnQuery_(root.get(),
                 neighbourHeap,
                 val,
-                dist,
+                dist * s2 - root->maxChildDist * s1,
                 kneighbours,
                 maxLeaves,
                 insertNode,
