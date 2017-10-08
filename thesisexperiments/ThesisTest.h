@@ -47,8 +47,8 @@ template <typename Tree>
 class ThesisTest {
 
 private:
-    
-    
+
+
 
 public:
 
@@ -65,7 +65,7 @@ public:
         ds.data = arma::Mat<float>(ds.fmap, ds.width, ds.length, false);
         return std::move(ds);
     }
-    
+
     static void unMapData(DataSet& ds) {
         munmap(ds.fmap, ds.fsize);
         close(ds.fdescriptor);
@@ -106,7 +106,7 @@ public:
         double knnEnd = get_wall_time();
         return {buildEnd - buildStart, knnEnd - knnStart};
     }
-    
+
     static std::pair<double,double> timeKNNInsert(const size_t knn,
                                             const size_t datasize,
                                             const size_t querysize,
@@ -147,7 +147,7 @@ public:
         double knnEnd = get_wall_time();
         return {buildEnd - buildStart, knnEnd - knnStart};
     }
-    
+
     static std::pair<double,double> accuracyKNN(const size_t knn,
                                             const size_t datasize,
                                             const size_t querysize,
@@ -181,7 +181,7 @@ public:
             //make a stack and do a linear scan
             static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                            const std::pair<double,size_t>& b) {
-                return std::get<0>(a) < std::get<0>(b);
+                return std::get<0>(a) == std::get<0>(b) ? std::get<1>(a) < std::get<1>(b) : std::get<0>(a) < std::get<0>(b);
             });
 
 
@@ -243,12 +243,13 @@ public:
         double stddev = arma::stddev(vals);
         return {mean, stddev};
     }
-    
+
     static SearchResults statsSVals(const size_t knn,
                                 const size_t datasize,
                                 const size_t querysize,
                                 const std::vector<double> s1Vals,
                                 const std::vector<double> s2Vals,
+                                std::vector<size_t> leafVals,
                                 DataSet& db,
                                 DataSet& dbq) {
         SearchResults results;
@@ -275,7 +276,7 @@ public:
                                 dbq.data.colptr(i), db.width
                                 ));
         }
-        
+
         //make a stack and do a linear scan
         static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                        const std::pair<double,size_t>& b) {
@@ -318,7 +319,7 @@ public:
             typename Tree::nodeReturnType tmp;
             double knnStart = get_wall_time();
             for (auto& q : querydata) {
-                auto results = t.knnQuery(q, knn, tmp, std::numeric_limits<size_t>::max(), s1, s2);
+                auto results = t.knnQuery(q, knn, tmp, leafVals[k], s1, s2);
             }
             double knnEnd = get_wall_time();
             results.queryTime.push_back(knnEnd - knnStart);
@@ -328,11 +329,11 @@ public:
             for (auto& q : querydata) {
                 auto& neighbourStack = neighbourStacks[cnt];
                 cnt++;
-                auto results = t.knnQuery(q, knn, tmp, std::numeric_limits<size_t>::max(), s1, s2);
+                auto results = t.knnQuery(q, knn, tmp, leafVals[k], s1, s2);
                 std::sort(results.begin(),
                            results.end(),
                            neighbourCmp);
-                
+
                 //check all children for matches
                 size_t i = 0;
                 size_t j = 0;
@@ -372,9 +373,9 @@ public:
         //load the SIFT dataset
         DataSet sift = ThesisTest::mapData("sift_mmapready", 128, 1000000);
         DataSet siftq = ThesisTest::mapData("sift_queries_mmapready", 128, 10000);
-        
+
         auto results = timeKNN(knn, datasize, querysize, maxleaves, spillepsilon, s1, s2, sift, siftq);
-        
+
         ThesisTest::unMapData(sift);
         ThesisTest::unMapData(siftq);
         return results;
@@ -392,7 +393,7 @@ public:
         DataSet siftq = ThesisTest::mapData("sift_queries_mmapready", 128, 10000);
 
         auto results = timeKNNInsert(knn, datasize, querysize, maxleaves, spillepsilon, s1, s2, sift, siftq);
-        
+
         ThesisTest::unMapData(sift);
         ThesisTest::unMapData(siftq);
         return results;
@@ -447,7 +448,7 @@ public:
         DataSet siftq = ThesisTest::mapData("sift_queries_mmapready", 128, 10000);
 
         auto results = accuracyKNN(knn, datasize, querysize, maxleaves, spillepsilon, s1, s2, sift, siftq);
-        
+
         ThesisTest::unMapData(sift);
         ThesisTest::unMapData(siftq);
         return results;
