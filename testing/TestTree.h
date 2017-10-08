@@ -169,7 +169,7 @@ public:
             */
             static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                            const std::pair<double,size_t>& b) {
-                return std::get<0>(a) < std::get<0>(b);
+                return std::get<0>(a) == std::get<0>(b) ? std::get<1>(a) < std::get<1>(b) : std::get<0>(a) < std::get<0>(b);
             });
 
 
@@ -257,7 +257,7 @@ public:
             */
             static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                            const std::pair<double,size_t>& b) {
-                return std::get<0>(a) < std::get<0>(b);
+                return std::get<0>(a) == std::get<0>(b) ? std::get<1>(a) < std::get<1>(b) : std::get<0>(a) < std::get<0>(b);
             });
 
 
@@ -337,7 +337,7 @@ public:
             */
             static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                            const std::pair<double,size_t>& b) {
-                return std::get<0>(a) < std::get<0>(b);
+                return std::get<0>(a) == std::get<0>(b) ? std::get<1>(a) < std::get<1>(b) : std::get<0>(a) < std::get<0>(b);
             });
 
 
@@ -424,7 +424,7 @@ public:
 
                 static auto neighbourCmp = ([](const std::pair<double,size_t>& a,
                                            const std::pair<double,size_t>& b) {
-                    return std::get<0>(a) < std::get<0>(b);
+                    return std::get<0>(a) == std::get<0>(b) ? std::get<1>(a) < std::get<1>(b) : std::get<0>(a) < std::get<0>(b);
                 });
 
                 auto results = t.knnQuery(data[i],knn+1);
