@@ -80,7 +80,6 @@ private:
     }
 
     void splitNode(CoverTreeNode* c) {
-        //TODO: set maxRadius
         if (c->childData.size() > maxLeafSize and c->maxChildDist > c->coverSize*minPointSep) {
 
             const double epsilon = c->maxChildDist * scaleFactor;
@@ -246,6 +245,64 @@ private:
         }
     }
 
+    void knnRecursiveQuery_( CoverTreeNode* c,
+            std::vector<std::pair<double,size_t>>& neighbourHeap,
+            const OBJ&  val,
+            double valDist,
+            const size_t& kneighbours,
+            const size_t& leafLimit,
+            CoverTreeNode*& insertNode,
+            size_t& leafCount,
+            const double& s1 = 1.0,
+            const double& s2 = 1.0) const {
+
+        if (leafCount >= leafLimit) {
+            return;
+        }
+        const double valDistScaled = (valDist + c->maxChildDist * s1);
+
+        //if there are no children, do the leaf node codepath
+        if (c->childNodes.size() == 0) {
+            //when querying children, we eliminate as many possibilities as we can before calculating the distance
+            auto candidate = c->childData.begin();
+            const double vmin = (valDistScaled - neighbourHeap.front().first) / s1;
+            while (candidate != c->childData.end() and candidate->first < vmin) {
+                ++candidate;
+            }
+            //while candidates are possibly closer than the furthers neighbour, check them and add them to the neighbour heap
+            for (;candidate != c->childData.end(); ++candidate) {
+                const double dist = METRIC::dist(data[candidate->second],val);
+                addNeighbour(neighbourHeap,
+                             dist * s2,
+                             candidate->second);
+            }
+            if (insertNode == NULL) {
+                insertNode = c;
+            }
+            ++leafCount;
+        } else {
+
+            //this first step pre-filters candidates by distance for expanding the tree, and adds their centroids to the neighbour heap
+            auto candidate = c->childNodes.begin();
+            const double vmin = (valDistScaled - neighbourHeap.front().first - c->childNodes[0].second->coverSize * s1) / s1;
+            while (candidate != c->childNodes.end() and candidate->first < vmin) {
+                ++candidate;
+            }
+            //iterate until we hit the maximum possible neighbour value
+            for (;candidate != c->childNodes.end();
+                 ++candidate) {
+                const double dist = METRIC::dist(data[candidate->second->centroid],val);
+                const double descendantDist = dist - candidate->second->maxChildDist * s1;
+                addNeighbour(neighbourHeap,
+                             dist * s2,
+                             candidate->second->centroid);
+                if (descendantDist <= neighbourHeap.front().first) {
+                    knnRecursiveQuery_(candidate->second.get(), neighbourHeap, val, descendantDist, kneighbours, leafLimit, insertNode, leafCount, s1, s2);
+                }
+            }
+        }
+    }
+
     void ennQuery_(const CoverTreeNode* c,
                 std::vector<std::pair<double,size_t>>& neighbours,
                 const OBJ&  val,
@@ -347,7 +404,7 @@ private:
 public:
      typedef CoverTreeNode* nodeReturnType;
 
-    CoverTree(std::vector<OBJ>& d, const size_t leafSize = 100) : data(d) {
+    CoverTree(std::vector<OBJ>& d, const size_t leafSize = 50) : data(d) {
         dataNodes.resize(data.size());
         //first create a distance-to-root-sorted list of all data indices (root is always index 0)
         std::vector<std::pair<double,size_t>> inds;
@@ -434,7 +491,7 @@ public:
         addNeighbour(neighbourHeap, dist * s2, root->centroid);
         insertNode = NULL;
         size_t leaves = 0;
-        knnQuery_(root.get(),
+        knnRecursiveQuery_(root.get(),
                 neighbourHeap,
                 val,
                 dist - root->maxChildDist * s1,

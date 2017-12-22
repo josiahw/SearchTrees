@@ -40,6 +40,9 @@ struct SearchResults {
     std::vector<double> queryTime;
     std::vector<double> accuracy;
     std::vector<double> stddev;
+    std::vector<double> distanceChecks;
+    std::vector<double> queryBallLargerCount;
+    std::vector<double> queryBallSmallerCount;
 };
 
 
@@ -325,6 +328,7 @@ public:
             results.queryTime.push_back(knnEnd - knnStart);
             std::vector<double> totals;
             totals.reserve(querydata.size());
+            DataReferenceEuclideanNode::checks();
             cnt = 0;
             for (auto& q : querydata) {
                 auto& neighbourStack = neighbourStacks[cnt];
@@ -358,6 +362,7 @@ public:
             arma::vec vals = arma::vec(totals) / knn;
             results.accuracy.push_back(arma::mean(vals));
             results.stddev.push_back(arma::stddev(vals));
+            results.distanceChecks.push_back(DataReferenceEuclideanNode::checks() / (double)vals.size());
         }
         return results;
     }
